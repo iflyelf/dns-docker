@@ -97,7 +97,6 @@ ARG PKG_DEPS="\
     device-tree-compiler \
     zlib1g-dev \
     libjpeg-dev \
-    libc6-dev-i386 \
     libelf-dev \
     libssl-dev \
     openssl \
@@ -163,7 +162,7 @@ RUN set -eux && \
     # 更改为zsh
     sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" || true && \
     sed -i -e "s/bin\/ash/bin\/zsh/" /etc/passwd && \
-    sed -i -e 's/mouse=/mouse-=/g' /usr/share/vim/vim*/defaults.vim && \
+    sed -i -e 's/mouse=/mouse-=/g' /usr/share/vim/vim*/defaults.vim 2>/dev/null || true && \
     locale-gen zh_CN.UTF-8 && localedef -f UTF-8 -i zh_CN zh_CN.UTF-8 && locale-gen
 
 # ***** 安装 Node.js 最新 LTS（每次构建时安装当前最新版本）*****
