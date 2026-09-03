@@ -82,7 +82,7 @@ jobs:
         tags: iflyelf/dns:${{ matrix.DOCKER_TAG }}
       
     - name: 删除旧的GitHub-workflow
-      uses: Mattraks/delete-workflow-runs@v3
+      uses: Mattraks/delete-workflow-runs@v2
       with:
         token: ${{ github.token }}
         repository: ${{ github.repository }}
