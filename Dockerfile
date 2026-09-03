@@ -80,8 +80,6 @@ ARG PKG_DEPS="\
     lrzsz \
     gcc \
     g++ \
-    gcc-multilib \
-    g++-multilib \
     build-essential \
     binutils \
     autoconf \
