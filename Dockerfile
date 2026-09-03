@@ -180,7 +180,7 @@ RUN set -eux && \
     python3 -m pip config set global.break-system-packages true && \
     pip3 config set global.index-url http://mirrors.aliyun.com/pypi/simple/ && \
     pip3 config set install.trusted-host mirrors.aliyun.com && \
-    python3 -m pip install --no-cache-dir --upgrade setuptools wheel cython && \
+    python3 -m pip install --no-cache-dir --ignore-installed --upgrade setuptools wheel cython && \
     python3 -m pip install --no-cache-dir pycryptodome lxml cython beautifulsoup4 requests && \
     rm -rf /tmp/* /var/lib/apt/lists/*
 
