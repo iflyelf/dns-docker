@@ -35,28 +35,20 @@ services:
     # 对外发布 Worker 端口
     ports:
       - "8787:8787"
-    # 启动时先配置 iptables REDIRECT 规则,再运行 wrangler
+    # 启动时先配置 nftables REDIRECT 规则,再运行 wrangler
     command:
       - /bin/sh
       - -c
       - |
         set -e
-        # 新建自定义链
-        iptables -t nat -N GOST 2>/dev/null || iptables -t nat -F GOST
-        # 排除本机/私有/保留网段(172.16.0.0/12 已包含 172.20.0.0/24 网关与 clash)
-        iptables -t nat -A GOST -d 0.0.0.0/8 -j RETURN
-        iptables -t nat -A GOST -d 10.0.0.0/8 -j RETURN
-        iptables -t nat -A GOST -d 127.0.0.0/8 -j RETURN
-        iptables -t nat -A GOST -d 169.254.0.0/16 -j RETURN
-        iptables -t nat -A GOST -d 172.16.0.0/12 -j RETURN
-        iptables -t nat -A GOST -d 192.168.0.0/16 -j RETURN
-        iptables -t nat -A GOST -d 224.0.0.0/4 -j RETURN
-        iptables -t nat -A GOST -d 240.0.0.0/4 -j RETURN
-        # 其余出站 TCP 重定向到 gost 透明代理端口
-        iptables -t nat -A GOST -p tcp -j REDIRECT --to-ports 12345
-        # 挂到 OUTPUT 链(幂等:先删后加)
-        iptables -t nat -D OUTPUT -p tcp -j GOST 2>/dev/null || true
-        iptables -t nat -A OUTPUT -p tcp -j GOST
+        # 清理可能存在的旧表(幂等)
+        nft delete table ip gost 2>/dev/null || true
+        # 创建表与 output 链
+        nft add table ip gost
+        nft add chain ip gost output '{ type nat hook output priority -100 ; policy accept ; }'
+        # 排除私有/保留网段后,将 TCP 流量重定向到 gost 透明代理端口 12345
+        # (172.16.0.0/12 已包含 172.20.0.0/24 网关与 clash)
+        nft add rule ip gost output ip daddr != '{ 0.0.0.0/8, 10.0.0.0/8, 127.0.0.0/8, 169.254.0.0/16, 172.16.0.0/12, 192.168.0.0/16, 224.0.0.0/4, 240.0.0.0/4 }' meta l4proto tcp redirect to :12345
         # 运行 Worker
         exec wrangler dev --ip 0.0.0.0 --port 8787 --env production
     # 指定容器的 ulimits 限制值
