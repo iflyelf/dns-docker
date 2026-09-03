@@ -47,6 +47,7 @@ ARG PKG_DEPS="\
     iproute2 \
     net-tools \
     iptables \
+    nftables \
     bridge-utils \
     openvswitch-switch \
     libseccomp2 \
@@ -147,11 +148,11 @@ RUN set -eux && \
    # 解决证书认证失败问题
    touch /etc/apt/apt.conf.d/99verify-peer.conf && echo >>/etc/apt/apt.conf.d/99verify-peer.conf "Acquire { https::Verify-Peer false }" && \
    # 更新系统软件
-   DEBIAN_FRONTEND=noninteractive apt-get update -qqy && apt-get upgrade -qqy && \
-   # 安装依赖包
-   DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends $PKG_DEPS --option=Dpkg::Options::=--force-confdef && \
-   DEBIAN_FRONTEND=noninteractive apt-get -qqy --no-install-recommends autoremove --purge && \
-   DEBIAN_FRONTEND=noninteractive apt-get -qqy --no-install-recommends autoclean && \
+   DEBIAN_FRONTEND=noninteractive apt update -qqy && apt upgrade -qqy && \
+   # 安装依赖包(移除 --no-install-recommends 确保推荐依赖也被安装)
+   DEBIAN_FRONTEND=noninteractive apt install -qqy $PKG_DEPS --option=Dpkg::Options::=--force-confdef && \
+   DEBIAN_FRONTEND=noninteractive apt -qqy autoremove --purge && \
+   DEBIAN_FRONTEND=noninteractive apt -qqy autoclean && \
    rm -rf /var/lib/apt/lists/* && \
    # 更新时区
    ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime && \
@@ -167,8 +168,8 @@ RUN set -eux && \
 # 使用 n 在构建时获取最新 LTS；若需最新 Current 可改为 n latest
 RUN set -eux && \
 curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
-   DEBIAN_FRONTEND=noninteractive apt-get update -qqy && \
-   DEBIAN_FRONTEND=noninteractive apt-get install -qqy --no-install-recommends nodejs && \
+   DEBIAN_FRONTEND=noninteractive apt update -qqy && \
+   DEBIAN_FRONTEND=noninteractive apt install -qqy nodejs && \
    npm config set registry https://registry.npmmirror.com && \
    npm install -g n && \
    n lts && \
