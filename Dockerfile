@@ -160,12 +160,11 @@ RUN set -eux && \
    ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime && \
    # 更新时间
    echo ${TZ} > /etc/timezone && \
-   # 更改为zsh
-   sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" || true && \
-   sed -i -e "s/bin\/ash/bin\/zsh/" /etc/passwd && \
-   sed -i -e 's/mouse=/mouse-=/g' /usr/share/vim/vim*/defaults.vim && \
-   locale-gen zh_CN.UTF-8 && localedef -f UTF-8 -i zh_CN zh_CN.UTF-8 && locale-gen && \
-   /bin/zsh
+    # 更改为zsh
+    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" || true && \
+    sed -i -e "s/bin\/ash/bin\/zsh/" /etc/passwd && \
+    sed -i -e 's/mouse=/mouse-=/g' /usr/share/vim/vim*/defaults.vim && \
+    locale-gen zh_CN.UTF-8 && localedef -f UTF-8 -i zh_CN zh_CN.UTF-8 && locale-gen
 
 # ***** 安装 Node.js 最新 LTS（每次构建时安装当前最新版本）*****
 # 使用 n 在构建时获取最新 LTS；若需最新 Current 可改为 n latest
